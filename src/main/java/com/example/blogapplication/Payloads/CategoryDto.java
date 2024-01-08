@@ -12,8 +12,9 @@ import lombok.Setter;
 public class CategoryDto {
     private Integer categoryId;
     @NotBlank
-    @Size(min = 4)
+    @Size(min = 4 ,message = "min size for title is 4")
     private String categoryTitle;
     @NotBlank
+    @Size(message = "minimum size for Description is 10",min = 10)
     private String categoryDescription;
 }
