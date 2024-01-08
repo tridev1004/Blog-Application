@@ -96,7 +96,6 @@ public class UserServiceImpl implements UserService {
 
         UserDto userDto = this.modelMapper.map(user, UserDto.class);   /// same hapenning here just modelmapper used
 
-
         return userDto;
     }
 }
