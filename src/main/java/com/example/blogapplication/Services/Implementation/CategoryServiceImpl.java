@@ -54,7 +54,7 @@ this.categoryRepo.delete(cat);
     public List<CategoryDto> getCategories() {
         List<Category> categories = this.categoryRepo.findAll();
       List<CategoryDto> categoryDtos=  categories.stream().map(category -> this.modelMapper.map(category,CategoryDto.class)).collect(Collectors.toList());
-return categoryDtos;
+    return categoryDtos;
 
     }
 }
