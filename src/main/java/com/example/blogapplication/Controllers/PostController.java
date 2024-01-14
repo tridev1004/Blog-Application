@@ -50,14 +50,14 @@ public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto, @PathVar
 
     //// Get all Posts
 @GetMapping("/posts")
-    public ResponseEntity<List<PostDto>> getAllPost(){
-        List<PostDto> allpost=this.postService.getAllPost();
+    public ResponseEntity<List<PostDto>> getAllPost(@RequestParam(value = "pageNumber",defaultValue = "1",required = false)Integer pageNumber,@RequestParam(value = "pageSize",defaultValue = "5",required = false)Integer pageSize){
+        List<PostDto> allpost=this.postService.getAllPost(pageNumber,pageSize);
         return  new ResponseEntity<>(allpost,HttpStatus.OK);
     }
 
 //GetSinglePost
     @GetMapping("/posts/{postId}")
-    public ResponseEntity<PostDto> getAllPost(@PathVariable("postId") Integer postId){
+    public ResponseEntity<PostDto> getPost(@PathVariable("postId") Integer postId){
         PostDto post=this.postService.getPostById(postId);
         return  new ResponseEntity<>(post,HttpStatus.OK);
     }
