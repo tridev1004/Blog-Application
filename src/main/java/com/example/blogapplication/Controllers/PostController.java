@@ -1,8 +1,10 @@
 package com.example.blogapplication.Controllers;
 
 import com.example.blogapplication.Entities.Post;
+import com.example.blogapplication.Payloads.ApiResponse;
 import com.example.blogapplication.Payloads.PostDto;
 import com.example.blogapplication.Services.PostService;
+import org.apache.coyote.Response;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
@@ -45,6 +47,37 @@ public ResponseEntity<PostDto> createPost(@RequestBody PostDto postDto, @PathVar
 
 
     }
+
+    //// Get all Posts
+@GetMapping("/posts")
+    public ResponseEntity<List<PostDto>> getAllPost(){
+        List<PostDto> allpost=this.postService.getAllPost();
+        return  new ResponseEntity<>(allpost,HttpStatus.OK);
+    }
+
+//GetSinglePost
+    @GetMapping("/posts/{postId}")
+    public ResponseEntity<PostDto> getAllPost(@PathVariable("postId") Integer postId){
+        PostDto post=this.postService.getPostById(postId);
+        return  new ResponseEntity<>(post,HttpStatus.OK);
+    }
+
+    // DeletePost
+
+    @DeleteMapping("posts/{postId}")
+    public ApiResponse deletePost(@PathVariable("postId") Integer postId){
+        this.postService.deletePost(postId);
+        return new ApiResponse("Post is successFullly deleted",true);
+
+    }
+    //Update post
+
+    @PutMapping("posts/{postId}")
+    public ResponseEntity<PostDto> Update(@PathVariable("postId") Integer postId,PostDto postDto){
+        PostDto postDto1 = this.postService.updatePost(postDto, postId);
+        return new ResponseEntity<>(postDto1,HttpStatus.OK);
+    }
+
 
 
 }

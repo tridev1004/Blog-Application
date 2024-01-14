@@ -46,30 +46,43 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public Post updatePost(PostDto postDto, Integer postId) {
-        return null;
+    public PostDto updatePost(PostDto postDto, Integer postId) {
+        Post post = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Posts", "Post_id", postId));
+      post.setTitle(postDto.getTitle());
+      post.setContent(postDto.getContent());
+      post.setImageName(post.getImageName());
+
+      Post UpdatedPost=this.postRepo.save(post);
+        return this.modelMapper.map(UpdatedPost,PostDto.class);
     }
 
     @Override
     public void deletePost(Integer postId) {
+        Post post = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Posts", "Post_id", postId));
+           this.postRepo.delete(post);
+    }
+
+    @Override
+    public List<PostDto> getAllPost() {
+        List<Post> allPosts = this.postRepo.findAll();
+       List<PostDto> postDtos= allPosts.stream().map((post)->this.modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+
+        return postDtos;
 
     }
 
     @Override
-    public List<Post> getallPost() {
-        return null;
-    }
+    public PostDto getPostById(Integer postId) {
+        Post post= this.postRepo.findById(postId).orElseThrow(()-> new ResourceNotFoundException("Post","Post_id",postId));
+        return this.modelMapper.map(post,PostDto.class);
 
-    @Override
-    public Post getPostById(Integer postId) {
-        return null;
     }
 
     @Override
     public List<PostDto> getPostByCategory(Integer categoryId) {
         Category cat=this.categoryRepo.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category","category_id",categoryId));
       List<Post> posts= this.postRepo.findByCategory(cat);
-List<PostDto> postDtos=      posts.stream().map((post->this.modelMapper.map(posts,PostDto.class))).collect(Collectors.toList());
+List<PostDto> postDtos=      posts.stream().map((post->this.modelMapper.map(post,PostDto.class))).collect(Collectors.toList());
 
 
         return postDtos;
