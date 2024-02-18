@@ -5,6 +5,7 @@ import com.example.blogapplication.Entities.Post;
 import com.example.blogapplication.Entities.User;
 import com.example.blogapplication.Exceptions.ResourceNotFoundException;
 import com.example.blogapplication.Payloads.PostDto;
+import com.example.blogapplication.Payloads.PostResponse;
 import com.example.blogapplication.Repositories.CategoryRepo;
 import com.example.blogapplication.Repositories.PostRepo;
 import com.example.blogapplication.Repositories.UserRep;
@@ -14,6 +15,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 import java.util.Date;
@@ -52,7 +54,7 @@ public class PostServiceImpl implements PostService {
         Post post = this.postRepo.findById(postId).orElseThrow(() -> new ResourceNotFoundException("Posts", "Post_id", postId));
       post.setTitle(postDto.getTitle());
       post.setContent(postDto.getContent());
-      post.setImageName(post.getImageName());
+      post.setImageName(postDto.getImageName());
 
       Post UpdatedPost=this.postRepo.save(post);
         return this.modelMapper.map(UpdatedPost,PostDto.class);
@@ -65,12 +67,12 @@ public class PostServiceImpl implements PostService {
     }
 
     @Override
-    public List<PostDto> getAllPost(Integer pageNumber,Integer pageSize) {
+    public PostResponse getAllPost(Integer pageNumber, Integer pageSize,String sortBy,String sortDir) {
+        Sort sort=(sortDir.equalsIgnoreCase("asc"))?
+                Sort.by(sortBy).ascending()
+                :Sort.by(sortBy).descending();
 
-
-        Pageable p= PageRequest.of(pageNumber,pageSize);
-
-
+        Pageable p= PageRequest.of(pageNumber,pageSize, Sort.by(sortBy).descending());
 
         Page<Post> PagePost = this.postRepo.findAll(p);
 
@@ -79,8 +81,16 @@ public class PostServiceImpl implements PostService {
 
 
        List<PostDto> postDtos= allPosts.stream().map((post)->this.modelMapper.map(post,PostDto.class)).collect(Collectors.toList());
+       PostResponse postResponse=new PostResponse();
+       postResponse.setContent(postDtos);
+       postResponse.setPageNumber(PagePost.getNumber());
+       postResponse.setPageSize(PagePost.getSize());
+       postResponse.setTotalElements(PagePost.getTotalElements());
+       postResponse.setTotalPages(PagePost.getTotalPages());
+       postResponse.setLastPage(PagePost.isLast());
 
-        return postDtos;
+
+        return postResponse;
 
     }
 
@@ -95,7 +105,7 @@ public class PostServiceImpl implements PostService {
     public List<PostDto> getPostByCategory(Integer categoryId) {
         Category cat=this.categoryRepo.findById(categoryId).orElseThrow(()->new ResourceNotFoundException("category","category_id",categoryId));
       List<Post> posts= this.postRepo.findByCategory(cat);
-List<PostDto> postDtos=      posts.stream().map((post->this.modelMapper.map(post,PostDto.class))).collect(Collectors.toList());
+List<PostDto> postDtos=  posts.stream().map((post->this.modelMapper.map(post,PostDto.class))).collect(Collectors.toList());
 
 
         return postDtos;
@@ -110,7 +120,9 @@ List<PostDto> postDtos=      posts.stream().map((post->this.modelMapper.map(post
     }
 
     @Override
-    public List<Post> searchPost(String keyword) {
-        return null;
+    public List<PostDto> searchPost(String keyword) {
+        List<Post> posts = this.postRepo.findByTitleContaining(keyword);
+        List<PostDto> postDtos = posts.stream().map((post) -> this.modelMapper.map(post, PostDto.class)).collect(Collectors.toList());
+        return postDtos;
     }
 }
